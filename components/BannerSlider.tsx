@@ -1,38 +1,38 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import BackgroundSlider from "react-background-slider";
 
 interface BannerSliderProps {
   images: string[];
 }
 
 export default function BannerSlider({ images }: BannerSliderProps) {
-  const [mounted, setMounted] = useState(false);
+  const [current, setCurrent] = useState(0);
 
   useEffect(() => {
-    setMounted(true);
-  }, []);
-
-  if (!mounted) {
-    return (
-      <div
-        className="w-full h-screen"
-        style={{
-          backgroundColor: "#1d1d20",
-          backgroundImage: `url(${images[0]})`,
-          backgroundSize: "cover",
-          backgroundPosition: "center",
-        }}
-      />
-    );
-  }
+    if (images.length <= 1) return;
+    const interval = setInterval(() => {
+      setCurrent((prev) => (prev + 1) % images.length);
+    }, 5000);
+    return () => clearInterval(interval);
+  }, [images.length]);
 
   if (images.length === 0) return null;
 
   return (
-    <div style={{ backgroundColor: "#1d1d20", minHeight: "100vh" }}>
-      <BackgroundSlider images={images} duration={5} transition={2} />
+    <div className="relative w-full h-screen overflow-hidden">
+      {images.map((src, i) => (
+        <div
+          key={src}
+          className="absolute inset-0 transition-opacity duration-[2000ms]"
+          style={{
+            backgroundImage: `url(${src})`,
+            backgroundSize: "cover",
+            backgroundPosition: "center",
+            opacity: i === current ? 1 : 0,
+          }}
+        />
+      ))}
     </div>
   );
 }
